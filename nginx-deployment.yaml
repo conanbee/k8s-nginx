@@ -1,0 +1,39 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: nginx
+  name: dev-nginx
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: nginx 
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+        ports:
+        - containerPort: 80
+          name: web
+        resources: {}
+        volumeMounts:
+        - mountPath: /etc/nginx/conf.d
+          name: default-conf
+        volumeMounts:
+        - mountPath: /opt/taxrefund/dist
+          name: dist-path
+      restartPolicy: Always
+      volumes:
+      - name: default-conf
+        configMap:
+          name: nginx-config
+          items:
+          - key: default.conf
+            path: default.conf
+      - name: dist-path
+        persistentVolumeClaim:
+          claimName: nginx-dist
